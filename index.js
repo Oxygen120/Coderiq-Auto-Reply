@@ -4,7 +4,7 @@ const app = express();
 
 app.use(express.json());
 
-// Code mein key ki jagah Environment Variable use ho raha hai
+// Ye line Vercel settings se key uthayegi
 const groq = new Groq({ 
     apiKey: process.env.GROQ_API_KEY 
 });
@@ -13,15 +13,16 @@ app.post('/webhook', async (req, res) => {
     try {
         const userMsg = req.body.message || "";
 
-        // Training for CoderIQ.IN
+        // Testing for Rafiq ji (CoderIQ.IN)
+        if (userMsg.toLowerCase() === "check") {
+            return res.json({ "reply": "✅ CoderIQ Engine v8.0 LIVE! Groq connected successfully." });
+        }
+
         const chatCompletion = await groq.chat.completions.create({
             messages: [
                 {
                     role: "system",
-                    content: `Aap Mohammad Rafiq (Founder: CoderIQ.IN) ke professional assistant hain. 
-                    Services: Web Development, Custom Apps, E-commerce (Cake Wale). 
-                    Contact: 9979131767, Email: info@coderiq.in. 
-                    Hinglish mein professional jawab dein.`
+                    content: "Aap Mohammad Rafiq (Founder: CoderIQ.IN) ke assistant hain. Hinglish mein jawab dein. Services: Web Development, Apps, E-commerce. Phone: 9979131767."
                 },
                 { role: "user", content: userMsg || "Hi" }
             ],
@@ -29,14 +30,13 @@ app.post('/webhook', async (req, res) => {
             temperature: 0.6
         });
 
-        const aiText = chatCompletion.choices[0]?.message?.content || "";
-        res.json({ "reply": aiText });
+        res.json({ "reply": chatCompletion.choices[0]?.message?.content || "" });
 
     } catch (error) {
-        console.error("DEBUG:", error.message);
-        res.json({ "reply": "Rafiq ji abhi busy hain, 9979131767 par call karein." });
+        console.error("Error:", error.message);
+        res.json({ "reply": "⚠️ Error: " + error.message });
     }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`v7.5 Security Update Live`));
+app.listen(PORT, () => console.log(`v8.0 Ready`));
