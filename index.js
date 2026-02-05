@@ -11,44 +11,33 @@ app.post('/webhook', async (req, res) => {
     try {
         const userMsg = req.body.message || "";
         
-        // Connectivity & Version Check
+        // Connectivity Check
         if (userMsg.toLowerCase() === "check") {
-            return res.json({ "reply": "✅ Server Link OK! Version 5.5 (Multi-Model Support) is live." });
+            return res.json({ "reply": "✅ Server Link Perfect! Mohammad Rafiq ji, ab 2.5-Flash call ho raha hai." });
         }
 
-        // Try Models in order of availability
-        const modelNames = ["gemini-1.5-flash", "gemini-2.0-flash-exp"];
-        let aiResponseText = "";
-        let success = false;
+        // --- SPECIFIC MODEL: gemini-2.5-flash ---
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-2.5-flash", 
+            systemInstruction: "Aap Mohammad Rafiq (Founder: CoderIQ.IN) ke professional assistant hain. Hinglish mein jawab dein. Business: Web Development, Apps, E-commerce."
+        });
 
-        for (const mName of modelNames) {
-            try {
-                const model = genAI.getGenerativeModel({ 
-                    model: mName,
-                    systemInstruction: "Aap Mohammad Rafiq (Founder: CoderIQ.IN) ke professional assistant hain. Hinglish mein jawab dein."
-                });
-                const result = await model.generateContent(userMsg || "Hello");
-                const response = await result.response;
-                aiResponseText = response.text();
-                if (aiResponseText) { 
-                    success = true; 
-                    break; 
-                }
-            } catch (e) {
-                console.log(`Model ${mName} failed, trying next...`);
-            }
+        if (!userMsg) {
+            return res.json({ "reply": "CoderIQ.IN mein swagat hai! Main aapki kya madad kar sakta hoon?" });
         }
 
-        if (success) {
-            res.json({ "reply": aiResponseText });
-        } else {
-            res.json({ "reply": "⚠️ AI Engine connect nahi ho raha. Rafiq ji, please API key check karein." });
-        }
+        const result = await model.generateContent(userMsg);
+        const response = await result.response;
+        const aiText = response.text();
+
+        res.json({ "reply": aiText });
 
     } catch (error) {
-        res.json({ "reply": "Error: " + error.message });
+        console.error("DEBUG ERROR:", error.message);
+        // Agar model nahi mila toh ye exact error message dikhayega
+        res.json({ "reply": "⚠️ AI Engine Error: " + error.message });
     }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`CoderIQ v5.5 Ready`));
+app.listen(PORT, () => console.log(`CoderIQ v6.0 Ready`));
