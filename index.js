@@ -11,32 +11,44 @@ app.post('/webhook', async (req, res) => {
     try {
         const userMsg = req.body.message || "";
         
-        // Connectivity Check
+        // Connectivity & Version Check
         if (userMsg.toLowerCase() === "check") {
-            return res.json({ "reply": "✅ Server link perfect hai! Ab 2.5 Flash run ho raha hai." });
+            return res.json({ "reply": "✅ Server Link OK! Version 5.5 (Multi-Model Support) is live." });
         }
 
-        // --- MODEL NAME UPDATED TO 2.5-FLASH ---
-        const model = genAI.getGenerativeModel({ 
-            model: "gemini-2.5-flash", 
-            systemInstruction: "Aap Mohammad Rafiq (Founder: CoderIQ.IN) ke professional AI assistant hain. Business: Web Development, Apps, E-commerce. Phone: 9979131767. Hinglish mein jawab dein."
-        });
+        // Try Models in order of availability
+        const modelNames = ["gemini-1.5-flash", "gemini-2.0-flash-exp"];
+        let aiResponseText = "";
+        let success = false;
 
-        if (!userMsg) {
-            return res.json({ "reply": "CoderIQ.IN mein swagat hai! Mohammad Rafiq ji ke AI assistant se baat karne ke liye shukriya." });
+        for (const mName of modelNames) {
+            try {
+                const model = genAI.getGenerativeModel({ 
+                    model: mName,
+                    systemInstruction: "Aap Mohammad Rafiq (Founder: CoderIQ.IN) ke professional assistant hain. Hinglish mein jawab dein."
+                });
+                const result = await model.generateContent(userMsg || "Hello");
+                const response = await result.response;
+                aiResponseText = response.text();
+                if (aiResponseText) { 
+                    success = true; 
+                    break; 
+                }
+            } catch (e) {
+                console.log(`Model ${mName} failed, trying next...`);
+            }
         }
 
-        const result = await model.generateContent(userMsg);
-        const response = await result.response;
-        const aiResponseText = response.text();
-
-        res.json({ "reply": aiResponseText });
+        if (success) {
+            res.json({ "reply": aiResponseText });
+        } else {
+            res.json({ "reply": "⚠️ AI Engine connect nahi ho raha. Rafiq ji, please API key check karein." });
+        }
 
     } catch (error) {
-        console.error("ERROR:", error.message);
-        res.json({ "reply": "⚠️ Error: " + error.message + ". Rafiq ji, please model version check karein." });
+        res.json({ "reply": "Error: " + error.message });
     }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`CoderIQ v5.1 (2.5-Flash) Ready`));
+app.listen(PORT, () => console.log(`CoderIQ v5.5 Ready`));
