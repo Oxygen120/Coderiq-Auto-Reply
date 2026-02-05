@@ -4,7 +4,7 @@ const app = express();
 
 app.use(express.json());
 
-// Aapki provide ki gayi Groq API Key
+// Mohammad Rafiq's Groq API Key
 const groq = new Groq({ 
     apiKey: 'Gsk_Dnd5wQGoj6YfwNQMPcY7WGdyb3FYNUos4zWUTRIBn8pxQgqVipnO' 
 });
@@ -13,44 +13,34 @@ app.post('/webhook', async (req, res) => {
     try {
         const userMsg = req.body.message || "";
 
-        // Server Status Check
         if (userMsg.toLowerCase() === "check") {
-            return res.json({ "reply": "🚀 CoderIQ Server: Groq Engine v1.0 is LIVE and Super Fast!" });
+            return res.json({ "reply": "✅ CoderIQ Server: Groq Engine is LIVE!" });
         }
 
         const chatCompletion = await groq.chat.completions.create({
-            "messages": [
+            messages: [
                 {
-                    "role": "system",
-                    "content": `Aap Mohammad Rafiq (Founder: CoderIQ.IN) ke professional AI assistant hain. 
-                    Aapka kaam clients ko services ke baare mein batana hai.
-                    Services: Professional Web Development, Custom Web Apps (CashAdda style, Referral/Ads system), E-commerce sites (Like Cake Wale), aur Domain/Email setup. 
-                    Founder Name: Mohammad Rafiq.
-                    Contact: 9979131767.
-                    Email: info@coderiq.in.
-                    Website: CoderIQ.in.
-                    Rules: Hamesha Hinglish mein professional aur friendly baat karein. Har message ka unique aur detailed jawab dein. Short replies mat dein.`
+                    role: "system",
+                    content: "Aap Mohammad Rafiq (Founder: CoderIQ.IN) ke professional assistant hain. Aapka kaam clients ko services jaise Web Development, Custom Apps, aur E-commerce stores (jaise Cake Wale) ke baare mein batana hai. Contact: 9979131767. Language: Hinglish."
                 },
                 {
-                    "role": "user",
-                    "content": userMsg || "Hello"
+                    role: "user",
+                    content: userMsg || "Hello"
                 }
             ],
-            "model": "llama3-8b-8192", 
-            "temperature": 0.7,
-            "max_tokens": 1024
+            model: "llama-3.3-70b-versatile", // Sabse stable model
+            temperature: 0.6
         });
 
         const aiText = chatCompletion.choices[0]?.message?.content || "";
-        
-        // WhatsAuto ko 'reply' key mein response bhejna
         res.json({ "reply": aiText });
 
     } catch (error) {
-        console.error("Groq Error:", error.message);
-        res.json({ "reply": "Rafiq ji abhi busy hain, aap direct unhe 9979131767 par call karein." });
+        console.error("GROQ ERROR:", error.message);
+        // Error message badal diya taaki pata chale ki ye catch block hai
+        res.json({ "reply": "⚠️ Connection Error: " + error.message });
     }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`CoderIQ Groq Bot Ready!`));
+app.listen(PORT, () => console.log(`Groq Live!`));
