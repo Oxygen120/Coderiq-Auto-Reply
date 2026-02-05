@@ -1,9 +1,11 @@
 {
-  "name": "coderiq-ai-bot",
+  "name": "coderiq-wa-bot",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "WhatsApp AI Bot for CoderIQ.IN",
+  "main": "bot.js",
   "dependencies": {
-    "express": "^4.18.2",
-    "@google/generative-ai": "^0.1.0"
+    "@google/generative-ai": "^0.1.0",
+    "qrcode-terminal": "^0.12.0",
+    "whatsapp-web.js": "^1.23.0"
   }
 }
