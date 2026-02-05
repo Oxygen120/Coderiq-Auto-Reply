@@ -11,15 +11,14 @@ app.post('/webhook', async (req, res) => {
     try {
         const userMsg = req.body.message || "";
         
-        // Connectivity Check
         if (userMsg.toLowerCase() === "check") {
-            return res.json({ "reply": "✅ Server Link Perfect! Mohammad Rafiq ji, ab 2.5-Flash call ho raha hai." });
+            return res.json({ "reply": "✅ Server Link OK! Now calling Gemini 2.5 Flash Preview." });
         }
 
-        // --- SPECIFIC MODEL: gemini-2.5-flash ---
+        // --- MODEL NAME: gemini-2.5-flash-preview ---
         const model = genAI.getGenerativeModel({ 
-            model: "gemini-2.5-flash", 
-            systemInstruction: "Aap Mohammad Rafiq (Founder: CoderIQ.IN) ke professional assistant hain. Hinglish mein jawab dein. Business: Web Development, Apps, E-commerce."
+            model: "gemini-2.5-flash-preview", 
+            systemInstruction: "Aap Mohammad Rafiq (Founder: CoderIQ.IN) ke professional assistant hain. Hinglish mein jawab dein. Services: Web Development, Apps, E-commerce."
         });
 
         if (!userMsg) {
@@ -33,11 +32,11 @@ app.post('/webhook', async (req, res) => {
         res.json({ "reply": aiText });
 
     } catch (error) {
-        console.error("DEBUG ERROR:", error.message);
-        // Agar model nahi mila toh ye exact error message dikhayega
+        console.error("ERROR:", error.message);
+        // Exact error message taaki pata chale agar ye model bhi na mile
         res.json({ "reply": "⚠️ AI Engine Error: " + error.message });
     }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`CoderIQ v6.0 Ready`));
+app.listen(PORT, () => console.log(`CoderIQ v6.5 (Preview) Ready`));
