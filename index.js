@@ -4,36 +4,34 @@ const app = express();
 
 app.use(express.json());
 
-// Aapki API Key
+// API Key
 const genAI = new GoogleGenerativeAI("AIzaSyC0kV61N55Wz8rEffHIaUuHTSciM9piV14");
 
 app.post('/webhook', async (req, res) => {
     try {
-        // IMPORTANT: WhatsAuto "message" key mein text bhejta hai
-        const userQuery = req.body.message; 
+        // WhatsAuto se aane wala message
+        const userMsg = req.body.message || req.body.query;
         
-        if (!userQuery) {
+        if (!userMsg) {
             return res.json({ "reply": "CoderIQ.IN mein swagat hai! Main aapki kya madad kar sakta hoon?" });
         }
 
         const model = genAI.getGenerativeModel({ 
-            model: "gemini-2.5-flash",
-            systemInstruction: `Aap Mohammad Rafiq (Founder: CoderIQ.IN) ke professional AI assistant hain. 
-            Services: Web Development, Custom Apps, E-commerce. 
-            Contact: 9979131767, info@coderiq.in. 
-            Rules: User ke message ka context samajh kar Hinglish mein jawab dein. Har baar same reply na karein.`
+            model: "gemini-1.5-flash", // 1.5-flash zyada stable hai Vercel par
+            systemInstruction: `Aap Mohammad Rafiq (Founder: CoderIQ.IN) ke professional assistant hain. 
+            Services: Web Development, Custom Apps (Earning/Referral/Ads), E-commerce. 
+            Contact: 9979131767, Email: info@coderiq.in. 
+            Rules: Hinglish use karein. Har message ka alag jawab dein. Context yaad rakhein.`
         });
 
-        // Yahan hum user ka asli message (userQuery) Gemini ko bhej rahe hain
-        const result = await model.generateContent(userQuery);
+        const result = await model.generateContent(userMsg);
         const response = await result.response;
         
-        // WhatsAuto ko reply bhej rahe hain
         res.json({ "reply": response.text() });
 
     } catch (error) {
         console.error(error);
-        res.json({ "reply": "Server thoda busy hai, aap direct 9979131767 par call karein." });
+        res.json({ "reply": "Rafiq ji abhi busy hain, aap direct 9979131767 par call karein." });
     }
 });
 
