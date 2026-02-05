@@ -11,36 +11,32 @@ app.post('/webhook', async (req, res) => {
     try {
         const userMsg = req.body.message || "";
         
-        // 1. Direct Deployment Check (Bina AI ke)
+        // Connectivity Check
         if (userMsg.toLowerCase() === "check") {
-            return res.json({ "reply": "✅ SERVER IS OK! Mohammad Rafiq ji, Vercel se connectivity perfect hai. Ab AI check karte hain..." });
+            return res.json({ "reply": "✅ Server link perfect hai! Ab 2.5 Flash run ho raha hai." });
         }
 
-        // 2. Gemini AI Call
+        // --- MODEL NAME UPDATED TO 2.5-FLASH ---
         const model = genAI.getGenerativeModel({ 
-            model: "gemini-1.5-flash", // 1.5-flash zyada stable hai
-            systemInstruction: "Aap Mohammad Rafiq (Founder: CoderIQ.IN) ke assistant hain. Hinglish mein professional jawab dein. Phone: 9979131767."
+            model: "gemini-2.5-flash", 
+            systemInstruction: "Aap Mohammad Rafiq (Founder: CoderIQ.IN) ke professional AI assistant hain. Business: Web Development, Apps, E-commerce. Phone: 9979131767. Hinglish mein jawab dein."
         });
 
-        const result = await model.generateContent(userMsg || "Hello");
+        if (!userMsg) {
+            return res.json({ "reply": "CoderIQ.IN mein swagat hai! Mohammad Rafiq ji ke AI assistant se baat karne ke liye shukriya." });
+        }
+
+        const result = await model.generateContent(userMsg);
         const response = await result.response;
         const aiResponseText = response.text();
 
-        // 3. Agar AI ka jawab mil gaya
-        if (aiResponseText) {
-            return res.json({ "reply": aiResponseText });
-        } else {
-            throw new Error("AI Response Empty");
-        }
+        res.json({ "reply": aiResponseText });
 
     } catch (error) {
-        // 4. Debugging Error (Taki pata chale dikkat kya hai)
-        console.error("DETAILED ERROR:", error);
-        return res.json({ 
-            "reply": "⚠️ AI Error: " + error.message + ". Rafiq ji, please check API Key or Vercel Logs." 
-        });
+        console.error("ERROR:", error.message);
+        res.json({ "reply": "⚠️ Error: " + error.message + ". Rafiq ji, please model version check karein." });
     }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`CoderIQ v4.5 Ready`));
+app.listen(PORT, () => console.log(`CoderIQ v5.1 (2.5-Flash) Ready`));
