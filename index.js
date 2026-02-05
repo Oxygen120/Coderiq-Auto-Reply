@@ -1,42 +1,56 @@
 const express = require('express');
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const Groq = require('groq-sdk');
 const app = express();
 
 app.use(express.json());
 
-// Mohammad Rafiq's API Key
-const genAI = new GoogleGenerativeAI("AIzaSyC0kV61N55Wz8rEffHIaUuHTSciM9piV14");
+// Aapki provide ki gayi Groq API Key
+const groq = new Groq({ 
+    apiKey: 'Gsk_Dnd5wQGoj6YfwNQMPcY7WGdyb3FYNUos4zWUTRIBn8pxQgqVipnO' 
+});
 
 app.post('/webhook', async (req, res) => {
     try {
         const userMsg = req.body.message || "";
-        
+
+        // Server Status Check
         if (userMsg.toLowerCase() === "check") {
-            return res.json({ "reply": "✅ Server Link OK! Now calling Gemini 2.5 Flash Preview." });
+            return res.json({ "reply": "🚀 CoderIQ Server: Groq Engine v1.0 is LIVE and Super Fast!" });
         }
 
-        // --- MODEL NAME: gemini-2.5-flash-preview ---
-        const model = genAI.getGenerativeModel({ 
-            model: "gemini-2.5-flash-preview", 
-            systemInstruction: "Aap Mohammad Rafiq (Founder: CoderIQ.IN) ke professional assistant hain. Hinglish mein jawab dein. Services: Web Development, Apps, E-commerce."
+        const chatCompletion = await groq.chat.completions.create({
+            "messages": [
+                {
+                    "role": "system",
+                    "content": `Aap Mohammad Rafiq (Founder: CoderIQ.IN) ke professional AI assistant hain. 
+                    Aapka kaam clients ko services ke baare mein batana hai.
+                    Services: Professional Web Development, Custom Web Apps (CashAdda style, Referral/Ads system), E-commerce sites (Like Cake Wale), aur Domain/Email setup. 
+                    Founder Name: Mohammad Rafiq.
+                    Contact: 9979131767.
+                    Email: info@coderiq.in.
+                    Website: CoderIQ.in.
+                    Rules: Hamesha Hinglish mein professional aur friendly baat karein. Har message ka unique aur detailed jawab dein. Short replies mat dein.`
+                },
+                {
+                    "role": "user",
+                    "content": userMsg || "Hello"
+                }
+            ],
+            "model": "llama3-8b-8192", 
+            "temperature": 0.7,
+            "max_tokens": 1024
         });
 
-        if (!userMsg) {
-            return res.json({ "reply": "CoderIQ.IN mein swagat hai! Main aapki kya madad kar sakta hoon?" });
-        }
-
-        const result = await model.generateContent(userMsg);
-        const response = await result.response;
-        const aiText = response.text();
-
+        const aiText = chatCompletion.choices[0]?.message?.content || "";
+        
+        // WhatsAuto ko 'reply' key mein response bhejna
         res.json({ "reply": aiText });
 
     } catch (error) {
-        console.error("ERROR:", error.message);
-        // Exact error message taaki pata chale agar ye model bhi na mile
-        res.json({ "reply": "⚠️ AI Engine Error: " + error.message });
+        console.error("Groq Error:", error.message);
+        res.json({ "reply": "Rafiq ji abhi busy hain, aap direct unhe 9979131767 par call karein." });
     }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`CoderIQ v6.5 (Preview) Ready`));
+app.listen(PORT, () => console.log(`CoderIQ Groq Bot Ready!`));
